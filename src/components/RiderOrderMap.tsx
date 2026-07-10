@@ -1,0 +1,164 @@
+import type { IOrder } from "../types";
+import {useState, useEffect} from "react";
+
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import * as L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
+import axios from "axios";
+import { realTimeService } from "../main";
+
+declare module "leaflet" {
+  namespace Routing {
+    function control(options: any): any;
+    function osrmv1(options: any): any;
+  }
+}
+
+
+const riderIcon = new L.DivIcon({
+  html: "🛵",
+  iconSize: [30, 30],
+  className : "",
+})
+
+
+const deliveryIcon = new L.DivIcon({
+  html: "🚚",
+  iconSize: [30, 30],
+  className : "",
+})
+
+const Routing = ({
+  from,
+  to
+}:{
+  from:[number, number];
+  to: [number, number];
+}) =>{
+  const map = useMap();
+
+  useEffect(()=>{
+    const control = L.Routing.control({
+      waypoints: [L.latLng(from), L.latLng(to)],
+      lineOptions: {
+        style: [{ color: "red", weight: 5 }]
+      },
+      addWaypoints: true,
+      draggableWaypoints: false,
+      show: false,
+      createMarker: () => null,
+      router: L.Routing.osrmv1({
+        serviceUrl: "http://router.project-osrm.org/route/v1",
+      }),
+    }).addTo(map);
+
+    return ()=>{
+      map.removeControl(control);
+    }
+      
+  },[from, to, map])
+
+  return null;
+};
+
+interface Props{
+  order: IOrder;
+}
+
+const RiderOrderMap = ({order}: Props) => {
+  const [riderLocation, setRiderLocation] = useState<[number, number] | null>(null);
+
+  if(
+    order.deliveryAddress.latitude == null ||
+    order.deliveryAddress.longitude == null
+  ){
+    return null;
+  }
+
+
+  const deliveryLocation: [number, number] = [
+    order.deliveryAddress.latitude,
+    order.deliveryAddress.longitude,
+  ];
+
+  useEffect(()=>{
+    const fetchLocation = ()=>{
+      navigator.geolocation.getCurrentPosition((pos)=>{
+        const latitude = pos.coords.latitude;
+        const longitude = pos.coords.longitude;
+        setRiderLocation([latitude, longitude]);
+
+        axios.post(`${realTimeService}/api/v1/interal/emit`,
+          {
+            event: "rider:location",
+            room: `user:${order.riderId}`,
+            payload: {
+              latitude,
+              longitude,
+            }
+            
+          },
+          {
+            headers: {
+              "x-internal-key": import.meta.env.VITE_INTERNAL_SERVICE_KEY,
+            }
+          }
+        );
+      },
+      (err)=>console.log("Error fetching location",err),{
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000,
+      })
+      
+    }
+
+    fetchLocation();
+    const interval = setInterval(fetchLocation, 5000);
+    return ()=> clearInterval(interval);
+    
+  },[order.riderId])
+
+  if(!riderLocation){
+    return null;
+  }
+
+  return (
+    <div className="rounded-xl bg-white shadow-sm p-3">
+      <MapContainer 
+       center={riderLocation}
+       zoom={14}
+       className="h-87.5 w-full rounded-lg"
+      >
+
+        <TileLayer
+
+        attribution="&copy; OpenStreetMap"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        maxZoom={18}
+         />
+
+         <Marker position={riderLocation} icon={riderIcon}>
+          <Popup>
+           You (Rider)
+          </Popup>
+         </Marker>
+
+         <Marker position={deliveryLocation} icon={deliveryIcon}>
+          <Popup>
+           Delivery Location
+          </Popup>
+         </Marker>
+
+         <Routing
+          from={riderLocation}
+          to={deliveryLocation}
+         />
+
+      </MapContainer>
+    </div>
+  )
+}
+
+export default RiderOrderMap
