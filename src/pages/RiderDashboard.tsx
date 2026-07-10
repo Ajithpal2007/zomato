@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useSocket } from "../context/SocketContext";
 import axios from "axios";
@@ -115,7 +115,7 @@ const RiderDashboard = () => {
   }
 
   useEffect(() => {
-    if (user.role === "rider") {
+    if (user && user.role === "rider") {
       fetchProfile()
     } else {
       setLoading(false)
@@ -207,7 +207,7 @@ const RiderDashboard = () => {
       }
 
       try {
-        const { data } = await axios.post(`${riderService}/api/rider/new`, {
+        await axios.post(`${riderService}/api/rider/new`, {
           formData
         }, {
           headers: {

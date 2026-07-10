@@ -9,7 +9,7 @@ export default defineConfig({
       name: 'add-coop-header',
       configureServer(server) {
         return () => {
-          server.middlewares.use((req, res, next) => {
+          server.middlewares.use((_req, res, next) => {
             res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
             next()
           })

@@ -47,7 +47,7 @@ const RiderOrderRequest = ({ orderId, onAccepted }: Props) => {
       onAccepted();
       
     } catch (error) {
-      toast.error("Order Acceptance Failed", error);
+      console.error("Order Acceptance Failed", error);
       toast.error("Error accepting order");
       onAccepted();
     } finally {

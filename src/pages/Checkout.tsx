@@ -208,7 +208,7 @@ const payWithStripe = async () => {
     const {orderId} = order
     
     try {
-      const stripe = await stripePromise
+      await stripePromise
 
       const {data} = await axios.post(`${utilitsService}/api/payment/stripe/create`,{
         orderId

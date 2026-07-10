@@ -34,7 +34,7 @@ export const RestaurantProfile = ({ restaurant, isSeller, onUpdate }: props) => 
 
     } catch (error) {
       console.log(error)
-      toast.error(error.response.data.message);
+      toast.error((error as any).response?.data?.message || "Something went wrong");
     }
   };
 

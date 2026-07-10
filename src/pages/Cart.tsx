@@ -5,7 +5,6 @@ import type { ICart, IMenuItem, IRestaurant } from "../types"
 import axios from "axios"
 import { restaurantService } from "../main"
 import toast from "react-hot-toast"
-import { FiDivideCircle } from "react-icons/fi"
 import { VscLoading } from "react-icons/vsc"
 import { BiMinus, BiPlus } from "react-icons/bi"
 
@@ -205,8 +204,8 @@ const Cart = () => {
           Proceed to Checkout
         </button>
 
-        <button  className="mt-3 w-full rounded-lg bg-[#191818] py-3 text-sm font-semibold text-white hover:bg-gray-1000 flex justify-center items-center gap-3" onClick={clearCaert}>
-          Clear Cart
+        <button  className="mt-3 w-full rounded-lg bg-[#191818] py-3 text-sm font-semibold text-white hover:bg-gray-1000 flex justify-center items-center gap-3" onClick={clearCaert} disabled={clearingCart}>
+          {clearingCart ? <VscLoading size={16} className="animate-spin"/> : "Clear Cart"}
         </button>
       </div>
       

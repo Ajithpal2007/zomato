@@ -10,7 +10,7 @@ import MenuItems from "../components/MenuItems"
 const RestaurantPage = () => { 
   const {id} = useParams()
 
-  const[ restaurant, setRestaurant] = useState<IRestaurant>(null)
+  const [restaurant, setRestaurant] = useState<IRestaurant | null>(null)
   const [menuItems, setMenuItems] = useState<IMenuItem[]>([])
   const [loading, setLoading] = useState(true)
 

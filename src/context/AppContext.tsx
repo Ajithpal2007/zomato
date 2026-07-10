@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { authService, restaurantService } from "../main";
 import axios from "axios";
-import type { AppContextValue, ICart, User } from "../types";
+import type { AppContextValue, ICart, User, LocationData } from "../types";
 import { Toaster } from "react-hot-toast";
 
 
@@ -17,7 +17,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [isAuth, setIsAuth] = useState(false)
   const [loading, setLoading] = useState(true);
 
-  const [location, setLocation] = useState<Location | null>(null)
+  const [location, setLocation] = useState<LocationData | null>(null)
   const [loadingLocation, setLoadingLocation] = useState(false)
   const [city, setCity] = useState("Fecthing Location...")
   
